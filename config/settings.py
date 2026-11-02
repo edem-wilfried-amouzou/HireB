@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
@@ -9,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 env = os.environ.get
 
-DEBUG = env("DJANGO_DEBUG", "1") == "1"
+RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", "")
+DEBUG = env("DJANGO_DEBUG", "0" if env("RENDER") else "1") == "1"
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG:
@@ -18,12 +20,19 @@ if not SECRET_KEY:
         raise ImproperlyConfigured("DJANGO_SECRET_KEY est obligatoire en production.")
 
 ALLOWED_HOSTS = [h.strip() for h in env("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in env("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
 # Nom provisoire du produit : à changer ici (ou dans .env) quand le nom sera trouvé.
 SITE_NAME = env("SITE_NAME", "HireB")
 # URL publique du site (liens dans les emails envoyés hors requête, ex. rappels cron).
-SITE_URL = env("SITE_URL", "http://localhost:8000")
+SITE_URL = env(
+    "SITE_URL",
+    f"https://{RENDER_EXTERNAL_HOSTNAME}" if RENDER_EXTERNAL_HOSTNAME else "http://localhost:8000",
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -32,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "accounts",
     "recruiting",
 ]
@@ -69,7 +79,15 @@ TEMPLATES = [
     },
 ]
 
-if env("POSTGRES_DB"):
+if env("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.parse(
+            env("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
+    }
+elif env("POSTGRES_DB"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -79,6 +97,7 @@ if env("POSTGRES_DB"):
             "HOST": env("POSTGRES_HOST", "localhost"),
             "PORT": env("POSTGRES_PORT", "5432"),
             "CONN_MAX_AGE": 60,
+            "OPTIONS": {"sslmode": env("POSTGRES_SSLMODE", "require")},
         }
     }
 else:
@@ -113,13 +132,30 @@ STORAGES = {
     },
 }
 
-# Fichiers des candidats : stockés HORS de toute URL publique, servis par une vue protégée.
-PRIVATE_MEDIA_ROOT = BASE_DIR / "private_media"
+# Fichiers des candidats : jamais d'URL publique, servis par une vue protégée.
+# Local (sans S3) : dossier privé sur disque.
+PRIVATE_MEDIA_ROOT = Path(env("PRIVATE_MEDIA_ROOT", str(BASE_DIR / "private_media")))
 MAX_UPLOAD_MB = int(env("MAX_UPLOAD_MB", "10"))
 # Uniquement des formats affichables dans la plateforme (aperçu sans téléchargement).
 ALLOWED_UPLOAD_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "txt", "md", "csv"}
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+
+# Stockage S3 (Neon Object Storage) : activé si le bucket est défini.
+# Le bucket doit être PRIVÉ ; l'accès passe par des URL signées temporaires.
+if env("AWS_STORAGE_BUCKET_NAME"):
+    AWS_S3_ENDPOINT_URL = env("AWS_ENDPOINT_URL_S3")
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+    AWS_S3_REGION_NAME = env("AWS_REGION", "us-east-2")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_ADDRESSING_STYLE = "path"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_QUERYSTRING_AUTH = True
+    AWS_QUERYSTRING_EXPIRE = int(env("AWS_QUERYSTRING_EXPIRE", "300"))
+    AWS_DEFAULT_ACL = None
+    AWS_S3_FILE_OVERWRITE = False
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}
 
 EMAIL_HOST = env("EMAIL_HOST", "")
 EMAIL_PORT = int(env("EMAIL_PORT", "587"))
@@ -153,20 +189,3 @@ SECURE_REFERRER_POLICY = "same-origin"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
-
-
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_ENDPOINT_URL_S3")
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_S3_REGION_NAME = os.environ.get("AWS_REGION")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-
-AWS_S3_ADDRESSING_STYLE = "path"
-AWS_S3_SIGNATURE_VERSION = "s3v4"
-AWS_QUERYSTRING_AUTH = False   # bucket public ; True si privé
-AWS_DEFAULT_ACL = None
-
-STORAGES = {
-    "default": {"BACKEND": "storages.backends.s3.S3Storage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
-}

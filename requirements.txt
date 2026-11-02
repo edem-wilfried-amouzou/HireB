@@ -1,4 +1,6 @@
 Django>=5.2,<6
+dj-database-url>=2.2,<3
+gunicorn>=23,<24
 python-dotenv>=1.0
 whitenoise>=6.7
 # Optionnel, pour PostgreSQL (définir POSTGRES_DB dans .env) :

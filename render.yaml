@@ -1,0 +1,82 @@
+services:
+  - type: web
+    name: hireb
+    runtime: python
+    plan: starter
+    buildCommand: ./build.sh
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /
+    envVars:
+      # Django
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: SITE_NAME
+        value: HireB
+      - key: SITE_URL
+        sync: false
+
+      # PostgreSQL Neon
+      - key: POSTGRES_DB
+        value: neondb
+      - key: POSTGRES_USER
+        value: neondb_owner
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_HOST
+        value: ep-young-pine-b49k6oay-pooler.c-6.us-east-2.aws.neon.tech
+      - key: POSTGRES_PORT
+        value: "5432"
+
+      # SMTP Spacemail
+      - key: EMAIL_HOST
+        value: mail.spacemail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        value: contact@django-admin.com
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "1"
+      - key: EMAIL_USE_SSL
+        value: "0"
+      - key: EMAIL_TIMEOUT
+        value: "30"
+      - key: DEFAULT_FROM_EMAIL
+        value: contact@django-admin.com
+      - key: SERVER_EMAIL
+        value: contact@django-admin.com
+
+      # Sécurité
+      - key: SECURE_SSL_REDIRECT
+        value: "1"
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: CSRF_COOKIE_SECURE
+        value: "1"
+      - key: SECURE_HSTS_SECONDS
+        value: "31536000"
+      - key: SECURE_HSTS_INCLUDE_SUBDOMAINS
+        value: "1"
+      - key: SECURE_HSTS_PRELOAD
+        value: "1"
+      - key: SECURE_CONTENT_TYPE_NOSNIFF
+        value: "1"
+
+      # Stockage S3 Neon
+      - key: AWS_ENDPOINT_URL_S3
+        value: https://br-damp-heart-b4qd1acr.storage.c-6.us-east-2.aws.neon.tech
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-2
+      - key: AWS_STORAGE_BUCKET_NAME
+        value: media

@@ -28,7 +28,17 @@ Rappels (cron toutes les heures) : `python manage.py send_reminders`. Chaque uti
 - Profil : nom, email, téléphone, mot de passe modifiables ; le username est fixe.
 
 ## Production
-`DJANGO_DEBUG=0`, `DJANGO_SECRET_KEY`, `ALLOWED_HOSTS`, `SITE_URL`, PostgreSQL, SMTP, puis `collectstatic`.
+### Déployer sur Render
+
+Le dépôt contient `render.yaml` pour créer le service web et son disque persistant, ainsi que `build.sh` pour installer les dépendances, collecter les fichiers statiques et appliquer les migrations. Render démarre l’application avec Gunicorn.
+
+1. Connectez le dépôt dans Render via **New + > Blueprint** et appliquez `render.yaml`. Le service utilise le plan Starter afin de conserver les fichiers candidats sur un disque persistant ; ce plan est payant.
+2. Dans **Environment**, renseignez `DATABASE_URL` avec l’URL PostgreSQL Neon et complétez les variables SMTP demandées. Gardez ces secrets dans Render, jamais dans le dépôt.
+3. Renseignez `SITE_URL` avec l’URL HTTPS Render ou votre domaine personnalisé. Pour un domaine personnalisé, ajoutez son nom d’hôte à `ALLOWED_HOSTS` et son origine HTTPS à `CSRF_TRUSTED_ORIGINS`.
+4. Lancez le déploiement. `DJANGO_SECRET_KEY` est générée par Render ; `DJANGO_DEBUG=0` et le disque des fichiers privés sont configurés par le Blueprint. Le nom d’hôte `onrender.com` est détecté automatiquement.
+
+Pour créer le service manuellement, utilisez Build Command `./build.sh`, Start Command `gunicorn config.wsgi:application`, et montez un disque persistant sur `/var/data` avec `PRIVATE_MEDIA_ROOT=/var/data/private_media`.
+
 Limiteur de tentatives : cache Django (utilisez Redis/Memcached si plusieurs processus).
 
 ## Responsive
