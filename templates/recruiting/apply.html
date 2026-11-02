@@ -25,12 +25,19 @@
 
     {% if form.topic %}
     <section class="form-section stack">
-      <h2>Choisissez votre thème</h2>
+      <h2>{% if r.topics.count == 1 %}Thème du travail{% else %}Choisissez votre thème{% endif %}</h2>
       <p class="hint">{{ r.task_title }} : vous aurez {{ r.test_hours }} h après l'envoi pour rendre votre travail.</p>
+      {% if r.topics.count == 1 %}
+      {% for t in r.topics.all %}<div class="field">
+        <input type="hidden" name="topic" value="{{ t.pk }}">
+        <strong>{{ t.title }}</strong>{% if t.brief %}<div class="muted prose">{{ t.brief|linebreaksbr }}</div>{% endif %}
+      </div>{% endfor %}
+      {% else %}
       <fieldset class="field">
       {% for t in r.topics.all %}<label class="choice"><input type="radio" name="topic" value="{{ t.pk }}" {% if form.topic.value|stringformat:"s" == t.pk|stringformat:"s" %}checked{% endif %} required>
-        <span><strong>{{ t.title }}</strong>{% if t.brief %}<br><span class="muted">{{ t.brief }}</span>{% endif %}</span></label>{% endfor %}
+        <span><strong>{{ t.title }}</strong>{% if t.brief %}<br><span class="muted prose">{{ t.brief|linebreaksbr }}</span>{% endif %}</span></label>{% endfor %}
       {% for e in form.topic.errors %}<p class="error">{{ e }}</p>{% endfor %}</fieldset>
+      {% endif %}
     </section>
     {% endif %}
     <button class="btn btn-primary btn-lg btn-block" type="submit">Envoyer ma candidature</button>

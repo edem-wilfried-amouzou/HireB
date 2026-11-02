@@ -87,6 +87,33 @@ class AccountTests(Base):
 
 
 class ApplicationTests(Base):
+    def test_single_topic_is_mandatory_and_brief_keeps_line_breaks(self):
+        self.topic.brief = "Faites une API\nAjoutez une documentation"
+        self.topic.save(update_fields=["brief"])
+
+        page = self.client.get(reverse("recruiting:apply", args=[self.r.public_id]))
+        self.assertContains(page, 'type="hidden" name="topic" value="%s"' % self.topic.pk)
+        self.assertContains(page, "Faites une API<br>Ajoutez une documentation")
+        self.assertNotContains(page, 'type="radio" name="topic"')
+
+        response = self.client.post(reverse("recruiting:apply", args=[self.r.public_id]), {
+            "full_name": "Ama K.", "email": "ama@example.com", f"q_{self.q.pk}": "Parce que.",
+            f"q_{self.cv.pk}": pdf(),
+        })
+        self.assertTrue(response.context["form"].has_error("topic"))
+        self.assertEqual(Application.objects.count(), 0)
+
+    def test_multiple_topics_remain_selectable(self):
+        TestTopic.objects.create(recruitment=self.r, title="Frontend", brief="Créer une interface")
+        page = self.client.get(reverse("recruiting:apply", args=[self.r.public_id]))
+        self.assertContains(page, 'type="radio" name="topic"')
+        self.assertContains(page, "Choisissez votre thème")
+
+    def test_test_submission_page_links_back_to_recruitment(self):
+        page = self.client.get(reverse("recruiting:test", args=[self.r.public_id]))
+        self.assertContains(page, f'href="{self.r.get_public_path}"')
+        self.assertContains(page, "Retour à l'offre")
+
     def test_apply_numbers_candidates_and_emails(self):
         self.assertEqual(self.apply().status_code, 302)
         self.apply("kofi@example.com", "Kofi")
