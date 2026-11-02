@@ -10,6 +10,10 @@ from django.utils import timezone
 
 
 def private_storage():
+    if getattr(settings, "AWS_STORAGE_BUCKET_NAME", ""):
+        from storages.backends.s3 import S3Storage
+
+        return S3Storage()
     return FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
 
 

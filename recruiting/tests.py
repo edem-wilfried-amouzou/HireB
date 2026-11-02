@@ -29,7 +29,7 @@ def mkuser(username, **kw):
     return User.objects.create_user(username, kw.pop("email", f"{username}@example.com"), PWD, name=kw.pop("name", username.title()), **kw)
 
 
-@override_settings(PRIVATE_MEDIA_ROOT=TMP)
+@override_settings(PRIVATE_MEDIA_ROOT=TMP, AWS_STORAGE_BUCKET_NAME="")
 class Base(TestCase):
     def setUp(self):
         cache.clear()
