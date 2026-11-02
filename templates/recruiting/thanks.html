@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="narrow stack">
+  {% if test_done %}<h1>Travail reçu</h1><p class="lead">Merci, votre travail pour « {{ r.title }} » a bien été transmis. Un email de confirmation vous a été envoyé (pensez à vérifier vos spams).</p>
+  {% else %}<h1>Candidature envoyée</h1><p class="lead">Merci, nous avons bien reçu votre candidature pour « {{ r.title }} ». Un email de confirmation vous a été envoyé : s'il n'arrive pas, vérifiez vos spams.</p>
+    {% if with_test %}<p>Votre thème et votre délai sont dans cet email. Quand votre travail est prêt, vous pouvez le soumettre à tout moment :</p>
+      <a class="btn btn-primary btn-lg btn-block" href="{% url 'recruiting:test' r.public_id %}">Soumettre mon travail</a>{% endif %}{% endif %}
+</section>
+{% endblock %}

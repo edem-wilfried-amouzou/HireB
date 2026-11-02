@@ -1,0 +1,42 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ r.title }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div><h1>{{ r.title }}</h1>
+    <p class="row-meta"><span class="badge {% if r.is_accepting %}badge-ok{% endif %}">{% if r.is_accepting %}Ouvert{% else %}Clôturé{% endif %}</span>
+      {% if r.anonymous %}<span class="badge badge-sun">Candidatures anonymes</span>{% endif %}
+      {% if r.test_enabled %}<span class="badge">{{ r.task_title }} · {{ r.test_hours }} h</span>{% endif %}
+      <span class="muted">Créé par {{ r.owner.name }}{% if not is_owner %} (@{{ r.owner.username }}){% endif %}</span></p></div>
+  {% if is_owner %}<div class="page-actions">
+    <form method="post" action="{% url 'recruiting:toggle' r.pk %}" {% if r.is_accepting %}data-confirm="Clôturer les candidatures ? Les candidats ne pourront plus postuler."{% endif %}>{% csrf_token %}<button class="btn btn-block">{% if r.is_accepting %}Clôturer{% else %}Rouvrir{% endif %}</button></form>
+    <a class="btn" href="{% url 'recruiting:team' r.pk %}">Équipe</a><a class="btn" href="{% url 'recruiting:edit' r.pk %}">Modifier</a></div>{% endif %}
+</header>
+
+<div class="stats">
+  <div class="stat"><strong>{{ total }}</strong><span>candidature{{ total|pluralize }}</span></div>
+  <div class="stat"><strong>{{ counts.new|default:0 }}</strong><span>nouvelle{{ counts.new|default:0|pluralize }}</span></div>
+  <div class="stat"><strong>{{ counts.shortlisted|default:0 }}</strong><span>présélectionnée{{ counts.shortlisted|default:0|pluralize }}</span></div>
+  {% if r.test_enabled %}<div class="stat"><strong>{{ submitted }}</strong><span>travail{{ submitted|pluralize:"x" }} rendu{{ submitted|pluralize }}</span></div>{% endif %}
+</div>
+
+<div class="share"><label for="public-link">Lien à partager</label>
+  <div class="share-row"><input id="public-link" type="text" readonly value="{{ public_url }}"><button type="button" class="btn" data-copy="#public-link">Copier</button></div></div>
+
+<nav class="tabs" aria-label="Filtrer par statut">
+  <a href="?" {% if not status %}aria-current="page"{% endif %}>Toutes <span class="count">{{ total }}</span></a>
+  {% for value, label in statuses %}<a href="?statut={{ value }}" {% if status == value %}aria-current="page"{% endif %}>{{ label }}s</a>{% endfor %}
+</nav>
+
+{% if page.object_list %}
+<ul class="rows">{% for a in page %}
+  <li><a class="row-link" href="{% url 'recruiting:application' r.pk a.pk %}">
+    <span class="row-main"><strong><span class="code">{{ a.code }}</span>{{ a.display_name }}</strong><span class="muted">Reçue le {{ a.created_at|date:"d/m/Y H:i" }}</span></span>
+    <span class="row-meta">
+      {% if r.test_enabled %}<span class="badge {% if a.submission %}badge-ok{% endif %}">{{ r.task_title }} : {% if a.submission %}rendu{% elif a.topic %}en attente{% else %}—{% endif %}</span>{% endif %}
+      <span class="badge status-{{ a.status }}">{{ a.get_status_display }}</span></span></a></li>{% endfor %}
+</ul>
+  {% if page.has_other_pages %}<nav class="cluster pager">{% if page.has_previous %}<a class="btn btn-sm" href="?page={{ page.previous_page_number }}{% if status %}&statut={{ status }}{% endif %}">Précédent</a>{% endif %}<span class="muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn btn-sm" href="?page={{ page.next_page_number }}{% if status %}&statut={{ status }}{% endif %}">Suivant</a>{% endif %}</nav>{% endif %}
+{% else %}
+<div class="empty"><h2>Aucune candidature{% if status %} dans ce statut{% endif %}</h2><p>Partagez le lien ci-dessus pour recevoir des candidatures.</p></div>
+{% endif %}
+{% endblock %}

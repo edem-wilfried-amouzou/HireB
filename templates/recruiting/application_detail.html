@@ -1,0 +1,47 @@
+{% extends "layout_app.html" %}
+{% block title %}{{ app.display_name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'recruiting:detail' r.pk %}">← {{ r.title }}</a></p>
+<header class="page-head">
+  <div><h1><span class="code code-lg">{{ app.code }}</span>{{ app.display_name }}</h1>
+    <p class="row-meta"><span class="badge status-{{ app.status }}">{{ app.get_status_display }}</span><span class="muted">Reçue le {{ app.created_at|date:"d/m/Y à H:i" }}</span></p></div>
+</header>
+{% if is_owner %}
+<form method="post" class="panel stack">{% csrf_token %}
+  <div class="page-actions">
+    <button class="btn btn-primary" name="action" value="shortlist">Présélectionner</button>
+    <button class="btn" name="action" value="select">Retenir</button>
+    <button class="btn" name="action" value="reject">Refuser</button>
+    {% if app.status != "new" %}<button class="btn btn-ghost" name="action" value="reset">Remettre à « nouvelle »</button>{% endif %}
+  </div>
+  <label class="check"><input type="checkbox" name="notify" checked><span>Prévenir le candidat par email (envoi automatique, sans afficher son adresse)</span></label>
+</form>
+{% endif %}
+
+<section class="panel">
+  <h2>Contact</h2>
+  {% if app.shows_identity %}<p><strong>{{ app.full_name }}</strong></p>
+    <p><a href="mailto:{{ app.email }}">{{ app.email }}</a>{% if app.phone %} · <a href="tel:{{ app.phone }}">{{ app.phone }}</a>{% endif %}</p>
+  {% else %}<p class="muted">Nom, email et téléphone masqués jusqu'à la présélection. Les emails partent automatiquement.</p>{% endif %}
+</section>
+
+<section class="panel stack">
+  <h2>Réponses aux questions</h2>
+  {% for ans in answers %}<div><h3>{{ ans.question.label }}</h3>
+    {% if ans.file %}<a class="btn btn-sm" href="{% url 'recruiting:preview' 'answer' ans.pk %}">Voir le fichier</a>
+    {% elif ans.text %}<p class="prose">{{ ans.text|linebreaksbr }}</p>{% else %}<p class="muted">Pas de réponse.</p>{% endif %}</div>
+  {% empty %}<p class="muted">Aucune question posée pour ce recrutement.</p>{% endfor %}
+</section>
+
+{% if r.test_enabled %}
+<section class="panel stack">
+  <h2>{{ r.task_title }}</h2>
+  {% if app.topic %}<p>Thème choisi : <strong>{{ app.topic.title }}</strong><br><span class="muted">Échéance : {{ app.test_deadline|date:"d/m/Y à H:i" }}</span></p>
+    {% if app.submission %}<p>Rendu le {{ app.submission.submitted_at|date:"d/m/Y à H:i" }}.</p>
+      {% if app.submission.note %}<p class="prose">{{ app.submission.note|linebreaksbr }}</p>{% endif %}
+      <div><a class="btn btn-sm btn-primary" href="{% url 'recruiting:preview' 'test' app.submission.pk %}">Voir le travail</a></div>
+    {% else %}<p class="muted">Pas encore rendu.</p>{% endif %}
+  {% else %}<p class="muted">Aucun thème choisi.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+DJANGO_DEBUG=1
+DJANGO_SECRET_KEY=change-me-en-production
+ALLOWED_HOSTS=*
+CSRF_TRUSTED_ORIGINS=
+SITE_NAME=HireB
+# URL publique (liens des emails envoyés hors requête, ex. rappels)
+SITE_URL=http://localhost:8000
+
+# PostgreSQL (sinon SQLite)
+# POSTGRES_DB=hireb
+# POSTGRES_USER=postgres
+# POSTGRES_PASSWORD=
+# POSTGRES_HOST=localhost
+# POSTGRES_PORT=5432
+
+# Email : sans EMAIL_HOST, les emails s'affichent dans la console.
+# EMAIL_HOST=smtp.example.com
+# EMAIL_PORT=587
+# EMAIL_HOST_USER=
+# EMAIL_HOST_PASSWORD=
+# EMAIL_USE_TLS=1
+DEFAULT_FROM_EMAIL=no-reply@example.com

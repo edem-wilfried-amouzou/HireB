@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Soumettre mon travail · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="narrow stack">
+  <h1>Soumettre mon travail</h1><p class="muted">{{ r.title }} · {{ r.task_title }}</p>
+  <p class="hint">Saisissez l'email utilisé pour candidater. Vous pouvez revenir sur cette page à tout moment avant l'échéance.</p>
+  <form method="post" enctype="multipart/form-data" class="stack">{% csrf_token %}
+    {% if form.non_field_errors %}<p class="alert alert-error">{{ form.non_field_errors.0 }}</p>{% endif %}
+    {% for field in form %}{% include "_field.html" %}{% endfor %}
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Envoyer mon travail</button></form>
+  <p><a href="{{ r.get_public_path }}">← Retour à l'offre</a></p>
+</section>
+{% endblock %}

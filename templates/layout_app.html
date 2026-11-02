@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block shell %}
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="{% url 'landing' %}">{{ SITE_NAME }}</a>
+    <span>{{ user.get_short_name }}</span>
+  </header>
+  <nav class="appnav" aria-label="Navigation principale">
+    <a class="brand nav-brand" href="{% url 'landing' %}">{{ SITE_NAME }}</a>
+    <a href="{% url 'recruiting:dashboard' %}" {% if request.resolver_match.url_name in 'dashboard detail edit team application preview' %}aria-current="page"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Recrutements</a>
+    <a href="{% url 'recruiting:create' %}" {% if request.resolver_match.url_name == 'create' %}aria-current="page"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau</a>
+    <a href="{% url 'recruiting:notifications' %}" {% if request.resolver_match.url_name == 'notifications' %}aria-current="page"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7zM10 20h4"/></svg>Alertes
+      {% if unread_count %}<span class="dot" aria-label="{{ unread_count }} non lue{{ unread_count|pluralize }}">{{ unread_count }}</span>{% endif %}</a>
+    <a href="{% url 'accounts:profile' %}" {% if request.resolver_match.url_name == 'profile' %}aria-current="page"{% endif %}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profil</a>
+    <div class="nav-foot">
+      <span>{{ user.name }} <span class="muted">@{{ user.username }}</span></span>
+      <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="link-btn">Se déconnecter</button></form>
+    </div>
+  </nav>
+  <main class="workspace">
+    {% include "_messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "layout_app.html" %}
+{% block title %}{% if is_new %}Nouveau recrutement{% else %}Modifier{% endif %} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<header class="page-head"><h1>{% if is_new %}Nouveau recrutement{% else %}Modifier « {{ r.title }} »{% endif %}</h1></header>
+<form method="post" class="stack-lg form-wide">
+  {% csrf_token %}
+  <section class="form-section stack">
+    <h2>Le poste</h2>
+    {% include "_field.html" with field=form.title %}
+    {% include "_field.html" with field=form.description %}
+    <div class="edit-grid">{% include "_field.html" with field=form.status %}{% include "_field.html" with field=form.closes_at %}</div>
+    {% include "_field.html" with field=form.anonymous %}
+  </section>
+
+  <section class="form-section stack" data-formset="questions">
+    <h2>Questions</h2>
+    <p class="hint">Le nom, l'email et le téléphone sont toujours demandés (section « Contact »). Ajoutez ici vos questions.</p>
+    {{ questions.management_form }}{{ questions.non_form_errors }}
+    <div class="stack" data-rows>{% for f in questions %}{% include "recruiting/_question_row.html" with form=f %}{% endfor %}</div>
+    <template>{% include "recruiting/_question_row.html" with form=questions.empty_form %}</template>
+    <div><button type="button" class="btn btn-block" data-add>Ajouter une question</button></div>
+  </section>
+
+  <section class="form-section stack">
+    <h2>Travail à rendre</h2>
+    <label class="check"><input type="checkbox" name="{{ form.test_enabled.html_name }}" id="{{ form.test_enabled.id_for_label }}" data-toggle="#test-box" {% if form.test_enabled.value %}checked{% endif %}><span>{{ form.test_enabled.label }}</span></label>
+    <div id="test-box" class="stack" {% if not form.test_enabled.value %}hidden{% endif %}>
+      {% include "_field.html" with field=form.task_title %}
+      {% include "_field.html" with field=form.test_hours %}
+      {% include "_field.html" with field=form.test_instructions %}
+      <div class="stack" data-formset="topics">
+        <h3>Thèmes proposés</h3>
+        {{ topics.management_form }}{{ topics.non_form_errors }}
+        <div class="stack" data-rows>{% for f in topics %}{% include "recruiting/_topic_row.html" with form=f %}{% endfor %}</div>
+        <template>{% include "recruiting/_topic_row.html" with form=topics.empty_form %}</template>
+        <div><button type="button" class="btn btn-block" data-add>Ajouter un thème</button></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cluster"><button class="btn btn-primary btn-lg" type="submit">Enregistrer</button>
+    <a class="btn btn-ghost" href="{% if is_new %}{% url 'recruiting:dashboard' %}{% else %}{% url 'recruiting:detail' r.pk %}{% endif %}">Annuler</a></div>
+</form>
+{% if not is_new %}
+<form method="post" action="{% url 'recruiting:delete' r.pk %}" class="form-wide" data-confirm="Supprimer définitivement ce recrutement et toutes ses candidatures ?">{% csrf_token %}<button class="link-btn danger">Supprimer ce recrutement</button></form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="stack">
+    <h1>Recrutez sur les compétences, pas sur les noms.</h1>
+    <p class="lead">Créez une offre, posez vos questions, partagez un lien. Les candidatures arrivent sous forme de codes anonymes ; l'identité n'apparaît que lorsque vous présélectionnez.</p>
+    <div class="cluster">
+      <a class="btn btn-primary btn-lg" href="{% url 'accounts:signup' %}">Lancer un recrutement</a>
+      <a class="btn btn-ghost btn-lg" href="{% url 'accounts:login' %}">Se connecter</a>
+    </div>
+  </div>
+  <div class="demo" aria-label="Aperçu de la liste des candidats">
+    <div class="demo-row"><span><span class="code">001</span><span class="who" data-name="Kossi Agbodjan">Candidat 001</span></span><button class="btn btn-sm" data-reveal>Présélectionner</button></div>
+    <div class="demo-row"><span><span class="code">002</span><span class="who" data-name="Afi Mensah">Candidat 002</span></span><button class="btn btn-sm" data-reveal>Présélectionner</button></div>
+    <div class="demo-row"><span><span class="code">003</span><span class="who" data-name="Yao Tchalla">Candidat 003</span></span><button class="btn btn-sm" data-reveal>Présélectionner</button></div>
+    <p class="hint">Essayez : le nom apparaît seulement après la présélection.</p>
+  </div>
+</section>
+
+<h2 class="section-title">Comment ça marche</h2>
+<section class="steps">
+  <article><h3>1. Créez le poste</h3><p>Intitulé, questions (texte, choix, fichier), date limite, anonymat en option.</p></article>
+  <article><h3>2. Partagez le lien</h3><p>Les candidats postulent sans compte, depuis leur téléphone ou leur ordinateur.</p></article>
+  <article><h3>3. Évaluez, présélectionnez</h3><p>Lisez les réponses, consultez les travaux rendus, puis décidez. L'identité se révèle à la présélection.</p></article>
+</section>
+
+<h2 class="section-title">Tout ce qu'il faut pour décider</h2>
+<section class="features">
+  <article><h3>Anonymat réel</h3><p>Nom, email, téléphone et noms de fichiers masqués. Les emails partent automatiquement, sans que vous les voyiez.</p></article>
+  <article><h3>Travail à rendre</h3><p>Test, design, document : le candidat choisit un thème, reçoit un délai, puis rend son travail. Vous le consultez en ligne.</p></article>
+  <article><h3>Équipe</h3><p>Invitez des collègues par nom d'utilisateur. Ils acceptent depuis leurs notifications et lisent les réponses.</p></article>
+  <article><h3>Notifications</h3><p>Dans l'application et par email : nouvelle candidature, travail rendu, invitation, rappel avant l'échéance.</p></article>
+</section>
+
+<section class="cta">
+  <h2>Prêt à recruter autrement ?</h2>
+  <a class="btn btn-primary btn-lg" href="{% url 'accounts:signup' %}">Créer un compte gratuit</a>
+</section>
+{% endblock %}

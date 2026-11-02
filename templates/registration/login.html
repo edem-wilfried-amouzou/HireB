@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Connexion · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="narrow stack">
+  <h1>Se connecter</h1>
+  <form method="post" class="stack">
+    {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+    {% if form.non_field_errors %}<p class="error">{{ form.non_field_errors.0 }}</p>{% endif %}
+    {% for field in form %}{% include "_field.html" %}{% endfor %}
+    <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+  </form>
+  <p><a href="{% url 'accounts:password_reset' %}">Mot de passe oublié ?</a></p>
+  <p class="muted">Pas encore de compte ? <a href="{% url 'accounts:signup' %}">Créer un compte</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout_app.html" %}
+{% block title %}Recrutements · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<header class="page-head"><h1>Recrutements</h1><div class="page-actions"><a class="btn btn-primary" href="{% url 'recruiting:create' %}">Nouveau recrutement</a></div></header>
+{% if items %}
+<div class="stats">
+  <div class="stat"><strong>{{ stats.open }}</strong><span>ouvert{{ stats.open|pluralize }}</span></div>
+  <div class="stat"><strong>{{ stats.apps }}</strong><span>candidature{{ stats.apps|pluralize }}</span></div>
+  <div class="stat"><strong>{{ stats.to_review }}</strong><span>travail{{ stats.to_review|pluralize:"x" }} à examiner</span></div>
+</div>
+<ul class="rows">
+  {% for r in items %}
+  <li><a class="row-link" href="{% url 'recruiting:detail' r.pk %}">
+    <span class="row-main"><strong>{{ r.title }}</strong>
+      <span class="muted">{% if r.owner_id != user.id %}Créé par {{ r.owner.name }} (@{{ r.owner.username }}){% else %}Créé le {{ r.created_at|date:"d/m/Y" }}{% endif %}</span></span>
+    <span class="row-meta">
+      {% if r.owner_id != user.id %}<span class="badge">Partagé avec vous</span>{% endif %}
+      {% if r.anonymous %}<span class="badge badge-sun">Anonyme</span>{% endif %}
+      <span class="badge {% if r.is_accepting %}badge-ok{% endif %}">{% if r.is_accepting %}Ouvert{% else %}Clôturé{% endif %}</span>
+      <span class="count">{{ r.n_apps }} candidature{{ r.n_apps|pluralize }}</span>
+    </span></a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty stack"><h2>Aucun recrutement pour l'instant</h2><p>Créez un poste, ajoutez vos questions, puis partagez le lien.</p><a class="btn btn-primary" href="{% url 'recruiting:create' %}">Créer mon premier recrutement</a></div>
+{% endif %}
+{% endblock %}

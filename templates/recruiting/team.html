@@ -1,0 +1,19 @@
+{% extends "layout_app.html" %}
+{% block title %}Équipe · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'recruiting:detail' r.pk %}">← {{ r.title }}</a></p>
+<header class="page-head"><h1>Équipe</h1></header>
+<p class="muted">Invitez un collaborateur par son nom d'utilisateur. Il reçoit une notification (et un email) et peut accepter ou refuser. Il lit ensuite les candidatures et consulte les fichiers ; seul le propriétaire décide des statuts.</p>
+<form method="post" class="inline-form">{% csrf_token %}
+  {% include "_field.html" with field=form.username %}<button class="btn btn-primary" type="submit">Inviter</button></form>
+
+<h2>Accès</h2>
+<ul class="rows">
+  <li class="row-plain"><span class="row-main"><strong>{{ r.owner.name }}</strong><span class="muted">@{{ r.owner.username }} · a créé ce recrutement</span></span><span class="badge">Propriétaire</span></li>
+  {% for m in members %}<li class="row-plain"><span class="row-main"><strong>{{ m.user.name }}</strong><span class="muted">@{{ m.user.username }}</span></span>
+    <form method="post" data-confirm="Retirer l'accès de ce collaborateur ?">{% csrf_token %}<button class="link-btn danger" name="remove" value="{{ m.pk }}">Retirer</button></form></li>{% endfor %}
+</ul>
+{% if invitations %}<h2>Invitations en attente</h2><ul class="rows">
+  {% for i in invitations %}<li class="row-plain"><span class="row-main"><strong>{{ i.invitee.name }}</strong><span class="muted">@{{ i.invitee.username }} · envoyée le {{ i.created_at|date:"d/m/Y" }}</span></span>
+    <form method="post">{% csrf_token %}<button class="link-btn danger" name="revoke" value="{{ i.pk }}">Annuler</button></form></li>{% endfor %}</ul>{% endif %}
+{% endblock %}

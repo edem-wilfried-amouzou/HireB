@@ -1,0 +1,34 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B4F3A">
+  <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+{% block shell %}
+  <header class="topbar">
+    <a class="brand" href="{% url 'landing' %}">{{ SITE_NAME }}</a>
+    <nav class="cluster">
+      {% if user.is_authenticated %}
+        <a class="btn btn-primary btn-sm" href="{% url 'recruiting:dashboard' %}">Mes recrutements</a>
+      {% else %}
+        <a class="btn btn-ghost btn-sm" href="{% url 'accounts:login' %}">Connexion</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'accounts:signup' %}">Créer un compte</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main class="page">
+    {% include "_messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-foot">{{ SITE_NAME }} — recrutez sur les compétences.</footer>
+{% endblock %}
+<script src="{% static 'js/app.js' %}" defer></script>
+</body>
+</html>

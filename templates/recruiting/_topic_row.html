@@ -1,0 +1,6 @@
+<div class="edit-row" data-row>
+  {{ form.id }}
+  <div class="field"><label for="{{ form.title.id_for_label }}">Thème</label>{{ form.title }}{% for e in form.title.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>
+  <div class="field"><label for="{{ form.brief.id_for_label }}">Consignes</label>{{ form.brief }}</div>
+  <div class="edit-foot"><span hidden>{{ form.DELETE }}</span><button type="button" class="link-btn danger" data-remove>Supprimer</button></div>
+</div>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Créer un compte · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="narrow stack">
+  <h1>Créer un compte</h1>
+  <form method="post" class="stack">
+    {% csrf_token %}
+    <div class="hp" aria-hidden="true"><label>Ne pas remplir {{ form.website }}</label></div>
+    {% for field in form %}{% if field.name != "website" %}{% include "_field.html" %}{% endif %}{% endfor %}
+    <button class="btn btn-primary btn-block" type="submit">Créer mon compte</button>
+  </form>
+  <p class="muted">Déjà inscrit ? <a href="{% url 'accounts:login' %}">Se connecter</a></p>
+</section>
+{% endblock %}

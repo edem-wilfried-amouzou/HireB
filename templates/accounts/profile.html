@@ -1,0 +1,22 @@
+{% extends "layout_app.html" %}
+{% block title %}Mon profil · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<header class="page-head"><div><h1>Mon profil</h1><p class="muted">@{{ user.username }} — le nom d'utilisateur ne peut pas être modifié.</p></div></header>
+<div class="stack-lg form-wide">
+  <form method="post" class="form-section stack">
+    {% csrf_token %}
+    <h2>Informations</h2>
+    {% if profile_form.non_field_errors %}<p class="error">{{ profile_form.non_field_errors.0 }}</p>{% endif %}
+    {% for field in profile_form %}{% include "_field.html" with field=field %}{% endfor %}
+    <button class="btn btn-primary btn-block" type="submit" name="save_profile" value="1">Enregistrer</button>
+  </form>
+  <form method="post" class="form-section stack">
+    {% csrf_token %}
+    <h2>Mot de passe</h2>
+    {% if password_form.non_field_errors %}<p class="error">{{ password_form.non_field_errors.0 }}</p>{% endif %}
+    {% for field in password_form %}{% include "_field.html" with field=field %}{% endfor %}
+    <button class="btn btn-primary btn-block" type="submit" name="save_password" value="1">Changer le mot de passe</button>
+  </form>
+  <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="btn btn-block">Se déconnecter</button></form>
+</div>
+{% endblock %}

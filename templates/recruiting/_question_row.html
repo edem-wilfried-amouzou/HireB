@@ -1,0 +1,13 @@
+<div class="edit-row" data-row>
+  {{ form.id }}{{ form.position }}
+  <div class="edit-grid">
+    <div class="field"><label for="{{ form.label.id_for_label }}">Question</label>{{ form.label }}{% for e in form.label.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>
+    <div class="field"><label for="{{ form.kind.id_for_label }}">Type</label>{{ form.kind }}</div>
+  </div>
+  <div class="field js-choices"><label for="{{ form.choices.id_for_label }}">Options (une par ligne)</label>{{ form.choices }}{% for e in form.choices.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>
+  <div class="edit-foot">
+    <label class="check">{{ form.required }}<span>Obligatoire</span></label>
+    <span hidden>{{ form.DELETE }}</span>
+    <button type="button" class="link-btn danger" data-remove>Supprimer</button>
+  </div>
+</div>

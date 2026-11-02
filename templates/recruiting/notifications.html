@@ -1,0 +1,17 @@
+{% extends "layout_app.html" %}
+{% block title %}Notifications · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<header class="page-head"><h1>Notifications</h1></header>
+{% for n in page %}
+<article class="notif {% if n.is_new %}is-new{% endif %}">
+  <div><p><strong>{{ n.message }}</strong></p><p class="hint">{{ n.created_at|date:"d/m/Y à H:i" }}</p></div>
+  {% if n.invitation and n.invitation.status == "pending" %}
+    <form method="post" action="{% url 'recruiting:invitation_respond' n.invitation.pk %}" class="page-actions">{% csrf_token %}
+      <button class="btn btn-primary" name="action" value="accept">Accepter</button>
+      <button class="btn" name="action" value="decline">Refuser</button></form>
+  {% elif n.invitation %}<p class="muted">Invitation {{ n.invitation.get_status_display|lower }}.</p>
+  {% elif n.url %}<div><a class="btn btn-sm" href="{{ n.url }}">Ouvrir</a></div>{% endif %}
+</article>
+{% empty %}<div class="empty"><h2>Rien pour l'instant</h2><p>Les invitations, nouvelles candidatures et travaux rendus apparaîtront ici.</p></div>{% endfor %}
+{% if page.has_other_pages %}<nav class="cluster pager">{% if page.has_previous %}<a class="btn btn-sm" href="?page={{ page.previous_page_number }}">Précédent</a>{% endif %}<span class="muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn btn-sm" href="?page={{ page.next_page_number }}">Suivant</a>{% endif %}</nav>{% endif %}
+{% endblock %}

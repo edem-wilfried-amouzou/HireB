@@ -1,0 +1,5 @@
+Django>=5.2,<6
+python-dotenv>=1.0
+whitenoise>=6.7
+# Optionnel, pour PostgreSQL (définir POSTGRES_DB dans .env) :
+psycopg[binary]>=3.2

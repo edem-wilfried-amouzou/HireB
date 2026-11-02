@@ -1,0 +1,12 @@
+{% extends "layout_app.html" %}
+{% block title %}Aperçu · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'recruiting:application' r.pk app.pk %}">← {{ app.display_name }}</a></p>
+<header class="page-head"><div><h1>{% if kind == "test" %}{{ r.task_title }}{% else %}Fichier joint{% endif %}</h1><p class="muted">{{ app.display_name }} · consultation en ligne uniquement</p></div></header>
+<div class="viewer">
+  {% if pk_kind == "pdf" %}<iframe src="{{ raw_url }}#toolbar=0&navpanes=0" title="Aperçu du document"></iframe>
+  {% elif pk_kind == "image" %}<img src="{{ raw_url }}" alt="Aperçu du travail" draggable="false">
+  {% elif pk_kind == "text" %}<pre>{{ text }}</pre>{% if truncated %}<p class="hint">Aperçu tronqué (début du fichier).</p>{% endif %}
+  {% else %}<p class="muted">Aperçu indisponible pour ce format.</p>{% endif %}
+</div>
+{% endblock %}

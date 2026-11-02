@@ -1,0 +1,14 @@
+{% if field.field.widget.input_type == "checkbox" %}
+  <div class="field"><label class="check">{{ field }}<span>{{ field.label }}</span></label>
+    {% if field.help_text %}<p class="hint">{{ field.help_text }}</p>{% endif %}
+    {% for e in field.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>
+{% elif field.field.widget.input_type == "radio" %}
+  <fieldset class="field"><legend>{{ field.label }}{% if not field.field.required %} <span class="muted">(facultatif)</span>{% endif %}</legend>
+    {{ field }}
+    {% for e in field.errors %}<p class="error">{{ e }}</p>{% endfor %}</fieldset>
+{% else %}
+  <div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="muted">(facultatif)</span>{% endif %}</label>
+    {{ field }}
+    {% if field.help_text %}<p class="hint">{{ field.help_text }}</p>{% endif %}
+    {% for e in field.errors %}<p class="error">{{ e }}</p>{% endfor %}</div>
+{% endif %}

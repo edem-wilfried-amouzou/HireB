@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ r.title }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<section class="narrow stack-lg">
+  <header class="stack"><h1>{{ r.title }}</h1>{% if r.description %}<p class="lead prose">{{ r.description|linebreaksbr }}</p>{% endif %}
+    {% if r.test_enabled %}<a class="btn btn-block" href="{% url 'recruiting:test' r.public_id %}">J'ai déjà candidaté : soumettre mon travail</a>{% endif %}</header>
+  <form method="post" enctype="multipart/form-data" class="stack-lg">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<p class="error">{{ form.non_field_errors.0 }}</p>{% endif %}
+    <div class="hp" aria-hidden="true"><label>Ne pas remplir {{ form.website }}</label></div>
+
+    <section class="form-section stack">
+      <h2>Vos coordonnées</h2>
+      <p class="hint">{% if r.anonymous %}Candidature anonyme : ces informations ne sont communiquées à l'équipe qu'après votre présélection. Vous recevrez nos emails automatiquement.{% else %}Ces informations sont visibles par l'équipe de recrutement.{% endif %}</p>
+      {% for field in form.contact_fields %}{% include "_field.html" %}{% endfor %}
+    </section>
+
+    {% if form.question_fields %}
+    <section class="form-section stack">
+      <h2>Vos réponses</h2>
+      {% if r.anonymous %}<p class="callout">Dans cette section uniquement : évitez de citer votre nom ou tout indice qui permettrait de vous identifier (dans vos textes comme dans vos fichiers).</p>{% endif %}
+      {% for field in form.question_fields %}{% include "_field.html" %}{% endfor %}
+    </section>
+    {% endif %}
+
+    {% if form.topic %}
+    <section class="form-section stack">
+      <h2>Choisissez votre thème</h2>
+      <p class="hint">{{ r.task_title }} : vous aurez {{ r.test_hours }} h après l'envoi pour rendre votre travail.</p>
+      <fieldset class="field">
+      {% for t in r.topics.all %}<label class="choice"><input type="radio" name="topic" value="{{ t.pk }}" {% if form.topic.value|stringformat:"s" == t.pk|stringformat:"s" %}checked{% endif %} required>
+        <span><strong>{{ t.title }}</strong>{% if t.brief %}<br><span class="muted">{{ t.brief }}</span>{% endif %}</span></label>{% endfor %}
+      {% for e in form.topic.errors %}<p class="error">{{ e }}</p>{% endfor %}</fieldset>
+    </section>
+    {% endif %}
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Envoyer ma candidature</button>
+  </form>
+</section>
+{% endblock %}
